@@ -1,0 +1,38 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.team-data {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 10px 0;
+}
+
+/* ===== INPUT - TEAM DATA ===== */
+.name, .rol {
+    width: 400px;
+}
+
+/* ===== BUTTON - TEAM DATA ===== */
+.delete {
+    background-color: white;
+    border: 2px solid #47B7D7;
+}
+.add:hover {
+    background-color: #47D7AE;
+    border: none;
+}
+.delete:hover {
+    color: #ffff;
+    background-color: #E43A42;
+    border: none;
+}

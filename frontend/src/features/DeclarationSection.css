@@ -1,0 +1,15 @@
+.generator:hover {
+    background-color: #47D7AE;
+    border: none;
+}
+
+textarea {
+    width: 99%;
+    height: 500px;
+    border: 2px solid;
+    resize: none;
+    margin: 20px 0 10px 0;
+}
+#output {
+    height: 400px;
+}
