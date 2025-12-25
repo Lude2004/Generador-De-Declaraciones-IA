@@ -27,7 +27,7 @@ const ProyectSection = () => {
     return (
         <div className="container">
             <fieldset>
-                <legend>Datos del Proyecto</legend>
+                <legend>Datos del Proyecto de Software</legend>
                 <div className="form">
                     <label>
                         Nombre del Proyecto:
