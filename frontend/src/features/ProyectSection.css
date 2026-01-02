@@ -1,38 +1,150 @@
-.form {
+.project-name,
+.project-leader,
+.team-data,
+.agile-methodology {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.project-name-entry,
+.project-leader-name-entry,
+.project-leader-last-name-entry,
+.member-name-entry,
+.member-last-name-entry,
+.member-rol-entry {
+position: relative;
+    width: 100%;
+}
+
+.project-leader-entry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.project-name-entry input,
+.project-leader-name-entry input,
+.project-leader-last-name-entry input,
+.member-name-entry input,
+.member-last-name-entry input,
+.member-rol-entry input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
 }
 
 .team-data {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
 }
 
-.fila {
+.fieldset-cotainer .team-data fieldset {
+    width: 100%;
+}
+
+.member-list {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.card-title {
+    font-size: 20px;
+}
+
+.member-form, 
+.member-card, 
+.member-actions,
+.successful-member-added {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 10px;
-    margin: 10px 0 10px 0;
+}
+
+.successful-member-added {
+    color: var(--color-green);
+}
+
+.icon-check {
+    position: absolute;
+    right: 12px;
+    top: 55%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-green);
+}
+
+.icon-alert {
+    position: absolute;
+    right: 12px;
+    top: 55%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-yellow);
+}
+
+.member-form {
+    width: 100%;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.member-card {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 3px solid transparent;
+    border-radius: 10px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.member-name, 
+.member-last-name, 
+.member-rol {
+    width: 100px;
+    color:rgba(0, 0, 0, 0.87);
 }
 
 /* ===== INPUT - TEAM DATA ===== */
-.name, .rol {
-    width: 400px;
+.name, 
+.last-name, 
+.rol {
+    width: 100px;
+    box-sizing: border-box;
+}
+
+.edit-name, 
+.edit-last-name,
+.edit-rol {
+    width: 100%;
+    max-width: 410px;
+    box-sizing: border-box;
 }
 
 /* ===== BUTTON - TEAM DATA ===== */
+.save:hover, 
+.add:hover, 
+.edit:hover {
+    background-color: var(--color-green);
+}
+.cancel, 
 .delete {
-    background-color: white;
-    border: 2px solid #47B7D7;
+    color: rgba(0, 0, 0, 0.87);
+    background-color: #ffff;
+    border: 3px solid #0F2854;
 }
-.add:hover {
-    background-color: #47D7AE;
-    border: none;
-}
+.cancel:hover, 
 .delete:hover {
-    color: #ffff;
-    background-color: #E43A42;
-    border: none;
+    color: rgba(0, 0, 0, 0.87);
+    background-position: top;
+    border: 3px solid var(--color-red);
 }

@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import Main from "../components/Main";
 import Footer from "../components/Footer";
 
-const Declaration = () => {
+const DeclarationStructure = () => {
 
     return (
         <>
@@ -15,4 +15,4 @@ const Declaration = () => {
     )
 };
 
-export default Declaration;
+export default DeclarationStructure;

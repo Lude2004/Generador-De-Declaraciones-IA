@@ -5,6 +5,8 @@ const TaskSection = ({ tareas, setTareas }) => {
         <div className="container">
             <fieldset>
                 <legend>Seleccionar tareas delegadas por IA generativa</legend>
+                <div className="fieldset-container">
+                </div>
             </fieldset>
         </div>
     )

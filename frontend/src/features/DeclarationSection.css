@@ -1,6 +1,6 @@
 .generator:hover {
-    background-color: #47D7AE;
-    border: none;
+    color: rgba(0, 0, 0, 0.87);
+    background-color: var(--color-accent);
 }
 
 textarea {

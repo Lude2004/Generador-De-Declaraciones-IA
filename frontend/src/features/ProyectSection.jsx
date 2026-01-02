@@ -1,107 +1,424 @@
 import "./ProyectSection.css"
 import { useState } from "react";
-import { Plus, Trash2 } from 'lucide-react';
+import { 
+    UserPlus, 
+    Trash2,
+    Pencil,
+    Save,
+    Check,
+    TriangleAlert,
+    User  
+} from 'lucide-react';
 
 const ProyectSection = () => {
-    const [nombre, setNombre] = useState("")
-    const [lider, setLider] = useState("")
-    const [miembros, setMiembros] = useState([
-        { nombre: "", rol:""}
-    ])
-    const [metodologia, setMetodologia] = useState("")
+    const [datos, setDatos] = useState({
+        nombreProyecto: "",
+        liderNombre: "",
+        liderApellido: "",
+        metodologia: ""
+    })
+    const [equipo, setEquipo] = useState([])
+    const [miembro, setMiembro] = useState({
+        nombre: "",
+        apellido: "",
+        rol: ""
+    })
 
-    const agregarMiembro = () => {
-        setMiembros([...miembros, { nombre:"", rol:""}])
+    const[touched, setTouched] = useState({
+        nombreProyecto: false,
+        liderNombre: false,
+        liderApellido: false,
+        metodologia: false,
+        miembroNombre: false,
+        miembroApellido: false,
+        miembroRol: false,
+    })
+
+    const [editandoId, setEditandoId] = useState(null)
+    const [backupMiembro, setBackupMiembro] = useState(null)
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setDatos(prev => ({
+            ...prev,
+            [name]: value
+        }))
+    } 
+
+    const handleMiembroChange = (e) => {
+        const { name, value } = e.target;
+        setMiembro(prev => ({
+            ...prev,
+            [name]: value
+        }))
     }
 
-    const eliminarMiembro = (index) => {
-        setMiembros(miembros.filter((_, i) => i !== index))
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        
+        if (name === "nombreProyecto" || name === "liderNombre" || name === "liderApellido" || name === "metodologia") {
+            setTouched(prev => ({
+                ...prev,
+                [name]: true
+            }))
+        }
+        else if (name === "nombre") {
+            setTouched(prev => ({
+                ...prev,
+                miembroNombre: true
+            }))
+        } else if (name === "apellido") {
+            setTouched(prev => ({
+                ...prev,
+                miembroApellido: true
+            }))
+        } else if (name === "rol") {
+            setTouched(prev => ({
+                ...prev,
+                miembroRol: true
+            }))
+        }
     }
 
-    const actualizarMiembro = (index, campo, valor) => {
-        const copia = [...miembros]
-        copia[index][campo] = valor
-        setMiembros(copia)
+    const isValid = (field) => {
+        return datos[field]?.trim() !== "";
+    }
+
+    const isMiembroValid = (field) => {
+        return miembro[field]?.trim() !== "";
+    }
+
+    const agregarMiembro = (e) => {
+        e.preventDefault()
+        setTouched(prev => ({
+            ...prev,
+            miembroNombre: true,
+            miembroApellido: true,
+            miembroRol: true
+        }))
+        if (!miembro.nombre || !miembro.apellido || !miembro.rol) return;
+        setEquipo([
+            ...equipo, 
+            { ...miembro, id: Date.now()}
+        ])
+        setMiembro({ 
+            nombre: "", 
+            apellido: "", 
+            rol: "" 
+        })
+        setTouched(prev => ({
+            ...prev,
+            miembroNombre: false,
+            miembroApellido: false,
+            miembroRol: false
+        }))
+    }
+
+    const eliminarMiembro = (id) => {
+        if (equipo.length === 1) return;
+        setEquipo(equipo.filter(m => m.id !== id))
+    }
+
+    const editarMiembro = (item) => {
+        setBackupMiembro({ ...item })
+        setEditandoId(item.id)
+    }
+
+    const guardarEdicion = (e) => {
+        e.preventDefault()
+        setEquipo(
+            equipo.map(m =>
+                m.id === editandoId ? { ...m, nombre: m.nombre, apellido: m.apellido, rol: m.rol } : m
+            )
+        )
+        setEditandoId(null)
+        setMiembro({ nombre: "", apellido: "", rol: "" })
+    }
+
+    const cancelarEdicion = () => {
+        setEquipo(
+            equipo.map(m =>
+                m.id === backupMiembro.id ? backupMiembro : m
+            ) 
+        )
+        setEditandoId(null)
     }
 
     return (
         <div className="container">
             <fieldset>
                 <legend>Datos del Proyecto de Software</legend>
-                <div className="form">
-                    <label>
-                        Nombre del Proyecto:
-                        <input 
-                            type="text"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            placeholder="" 
-                        />
-                    </label>
+                <div className="fieldset-container">
+                    <div className="form">
 
-                    <label>
-                        Líder del Proyecto:
-                        <input 
-                            type="text"
-                            value={lider}
-                            onChange={(e) => setLider(e.target.value)}
-                            placeholder=""
-                        />
-                    </label>
-
-                    <div className="team-data">
-                        <label>
-                            Miembros del Equipo de Desarrollo:
-                        </label>
-                        {miembros.map((m, i) => (
-                            <div key={i} className="fila">
-                                <input
-                                    className="name" 
-                                    type="text"
-                                    placeholder="Nombre"
-                                    value={m.nombre}
-                                    onChange={(e) => 
-                                        actualizarMiembro(i, "nombre", e.target.value)
-                                    }
-                                />
+                        {/* NOMBRE DEL PROYECTO */}
+                        <div className="project-name">
+                            <h2>
+                                Nombre del Proyecto:
+                            </h2>
+                            <div className="project-name-entry">
                                 <input 
-                                    className="rol"
                                     type="text"
-                                    placeholder="Rol"
-                                    value={m.rol}
-                                    onChange={(e) => 
-                                        actualizarMiembro(i, "rol", e.target.value)
-                                    }
+                                    name="nombreProyecto"
+                                    value={datos.nombreProyecto}
+                                    placeholder=""
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
                                 />
-                                <button
-                                    className="add" 
-                                    type="button"
-                                    onClick={() => agregarMiembro(i)}
-                                >
-                                    Agregar miembro <Plus />
-                                </button>
-                                {miembros.length > 1 && (
-                                    <button
-                                        className="delete" 
-                                        type="button"
-                                        onClick={() => eliminarMiembro(i)}
-                                    >
-                                        Eliminar Miembro <Trash2 />
-                                    </button>
+                                {touched.nombreProyecto && (
+                                    isValid("nombreProyecto")
+                                        ? <span className="icon-check"><Check /></span>
+                                        : <span className="icon-alert"><TriangleAlert /></span>
                                 )}
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-                    <label>
-                        Seleccione la metodología utilizada:
-                        <select name="" id="">
-                            <option value="">-- Seleccione --</option>
-                            <option value="1">Scrum</option>
-                            <option value="2">Extreme Programming (XP)</option>
-                            <option value="3">DSDM</option>
-                        </select>
-                    </label>
+                        {/* LÍDER DEL PROYECTO */}
+                        <div className="project-leader">
+                            <h2>
+                                Líder del Proyecto:
+                            </h2>
+                            <div className="project-leader-entry">
+                                <div className="project-leader-name-entry">
+                                    <input 
+                                        type="text"
+                                        name="liderNombre"
+                                        value={datos.liderNombre}
+                                        placeholder="Nombre"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {touched.liderNombre && (
+                                        isValid("liderNombre")
+                                            ? <span className="icon-check"><Check /></span>
+                                            : <span className="icon-alert"><TriangleAlert /></span>
+                                    )} 
+                                </div>   
+                                <div className="project-leader-last-name-entry">
+                                    <input 
+                                        type="text"
+                                        name="liderApellido"
+                                        value={datos.liderApellido}
+                                        placeholder="Apellido"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {touched.liderApellido && (
+                                        isValid("liderApellido")
+                                            ? <span className="icon-check"><Check /></span>
+                                            : <span className="icon-alert"><TriangleAlert /></span>
+                                    )} 
+                                </div>   
+                            </div>                         
+                        </div>
+
+                        {/* EQUIPO DE DESARROLLO */}
+                        <div className="team-data">
+                            <h2>
+                                Equipo de Desarrollo:
+                            </h2>
+
+                            <div className="member-form">
+                                <div className="member-name-entry">
+                                    <input
+                                        className="name" 
+                                        type="text"
+                                        name="nombre"
+                                        placeholder="Nombre"
+                                        value={miembro.nombre}
+                                        onChange={handleMiembroChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {touched.miembroNombre && (
+                                        isMiembroValid("nombre")
+                                            ? <span className="icon-check"><Check /></span>
+                                            : <span className="icon-alert"><TriangleAlert /></span>
+                                    )} 
+                                </div>
+                                <div className="member-name-entry">
+                                    <input 
+                                        className="last-name"
+                                        type="text" 
+                                        name="apellido"
+                                        placeholder="Apellido"
+                                        value={miembro.apellido}
+                                        onChange={handleMiembroChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {touched.miembroApellido && (
+                                        isMiembroValid("apellido")
+                                            ? <span className="icon-check"><Check /></span>
+                                            : <span className="icon-alert"><TriangleAlert /></span>
+                                    )}                                     
+                                </div>
+                                <div className="member-rol-entry">
+                                    <input 
+                                        className="rol"
+                                        type="text"
+                                        name="rol"
+                                        placeholder="Rol"
+                                        value={miembro.rol}
+                                        onChange={handleMiembroChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {touched.miembroRol && (
+                                        isMiembroValid("rol")
+                                            ? <span className="icon-check"><Check /></span>
+                                            : <span className="icon-alert"><TriangleAlert /></span>
+                                    )}                                     
+                                </div>
+
+                                <button
+                                    className="add"
+                                    type="button"
+                                    onClick={agregarMiembro}
+                                >
+                                    Agregar <UserPlus />
+                                </button>
+                            </div>
+
+                            {/* LISTA DE LOS MIEMBROS */}
+                            <fieldset>
+                                <legend className="card-title">Miembros Registrados</legend>
+                                <div className="member-list">
+                                    {equipo.map(item => (
+                                        <div className="member-card" key={item.id}>
+                                            {editandoId === item.id ? (
+                                                <></>
+                                            ) : (
+                                                <div className="successful-member-added">
+                                                    <User />
+                                                </div>
+                                            )}
+
+                                            {/* NOMBRE DEL MIEMBRO */}
+                                            {editandoId === item.id ? (
+                                                <input
+                                                    className="edit-name"
+                                                    type="text"
+                                                    name="nombre"
+                                                    value={item.nombre}
+                                                    onChange={(e) =>
+                                                        setEquipo(
+                                                            equipo.map(m =>
+                                                                m.id === item.id
+                                                                    ? { ...m, nombre: e.target.value }
+                                                                    : m
+                                                        ))
+                                                    } 
+                                                />
+                                            ) : (
+                                                <p className="member-name">
+                                                    {item.nombre}
+                                                </p>
+                                            )}
+
+                                            {/*APELLIDO DEL MIEMBRO */}
+                                            {editandoId === item.id ? (
+                                                <input
+                                                    className="edit-last-name"
+                                                    type="text"
+                                                    name="apellido"
+                                                    value={item.apellido}
+                                                    onChange={(e) =>
+                                                        setEquipo(
+                                                            equipo.map(m =>
+                                                                m.id === item.id
+                                                                    ? { ...m, apellido: e.target.value }
+                                                                    : m
+                                                        ))
+                                                    }
+                                                />
+                                            ) : (
+                                                <p className="member-last-name">
+                                                    {item.apellido}
+                                                </p>
+                                            )}
+
+                                            {/* ROL DEL MIEMBRO */}
+                                            {editandoId === item.id ? (
+                                                <input
+                                                    className="edit-rol"
+                                                    type="text"
+                                                    name="rol"
+                                                    value={item.rol}
+                                                    onChange={(e) =>
+                                                        setEquipo(
+                                                            equipo.map(m =>
+                                                                m.id === item.id
+                                                                    ? { ...m, rol: e.target.value }
+                                                                    : m
+                                                        ))
+                                                    }
+                                                />
+                                            ) : (
+                                                <p className="member-rol">
+                                                    {item.rol}
+                                                </p>
+                                            )}
+
+                                            {/* BOTONES */}
+                                            <div className="member-actions">
+
+                                                {editandoId === item.id ? (
+                                                    <>
+                                                        <button
+                                                            className="save"
+                                                            type="button"
+                                                            onClick={guardarEdicion}
+                                                        >
+                                                            Guardar <Save />
+                                                        </button>
+                                                        <button
+                                                            className="cancel"
+                                                            type="button"
+                                                            onClick={() => cancelarEdicion()}
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            className="edit"
+                                                            type="button"
+                                                            onClick={() => editarMiembro(item)}
+                                                        >
+                                                            Editar <Pencil />
+                                                        </button>
+                                                        {equipo.length > 1 && (
+                                                            <button
+                                                                className="delete"
+                                                                type="button"
+                                                                onClick={() => eliminarMiembro(item.id)}
+                                                            >
+                                                                Eliminar <Trash2 />
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}  
+
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        {/* METODOLOGÍA ÁGIL */}
+                        <div className="agile-methodology">
+                            <h2>
+                                Metodología utilizada:
+                            </h2>
+                            <select name="" id="">
+                                <option value="">-- Seleccione --</option>
+                                <option value="1">Scrum</option>
+                                <option value="2">Extreme Programming (XP)</option>
+                                <option value="3">DSDM</option>
+                            </select>
+                        </div>
+
+                    </div>
                 </div>
             </fieldset>
         </div>
