@@ -16,3 +16,10 @@ Including another URLconf
 """
 #from django.contrib import admin
 from django.urls import path
+from core import views
+
+urlpatterns = [
+    path('api/metodologias-lista/', views.listar_metodologias),
+    path('api/metodologia/', views.obtener_detalles_metodologia),
+    path('api/generar-declaracion/', views.generar_declaracion),
+]

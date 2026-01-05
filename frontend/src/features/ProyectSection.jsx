@@ -1,5 +1,5 @@
 import "./ProyectSection.css"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
     UserPlus, 
     Trash2,
@@ -9,12 +9,11 @@ import {
     TriangleAlert,
     User  
 } from 'lucide-react';
+import { getListaMetodologias } from "../services/Api";
 
-const ProyectSection = () => {
+const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
     const [datos, setDatos] = useState({
         nombreProyecto: "",
-        liderNombre: "",
-        liderApellido: "",
         metodologia: ""
     })
     const [equipo, setEquipo] = useState([])
@@ -26,8 +25,6 @@ const ProyectSection = () => {
 
     const[touched, setTouched] = useState({
         nombreProyecto: false,
-        liderNombre: false,
-        liderApellido: false,
         metodologia: false,
         miembroNombre: false,
         miembroApellido: false,
@@ -37,13 +34,37 @@ const ProyectSection = () => {
     const [editandoId, setEditandoId] = useState(null)
     const [backupMiembro, setBackupMiembro] = useState(null)
 
-    const handleChange = (e) => {
+    const [opciones, setOpciones] = useState([])
+
+    // Cargar miembros del localStorage al montar
+    useEffect(() => {
+        const datosGuardados = localStorage.getItem('datosProyecto');
+        if (datosGuardados) {
+            const datos = JSON.parse(datosGuardados);
+            if (datos.miembros && datos.miembros.length > 0) {
+                setEquipo(datos.miembros);
+            }
+        }
+    }, []);
+
+    // Sincronizar equipo con el padre
+    useEffect(() => {
+        onDatosChange({ miembros: equipo });
+    }, [equipo, onDatosChange]);
+
+    useEffect(() => {
+        getListaMetodologias().then(data => setOpciones(data))
+    }, [])
+
+    const handleChangeInput = (e) => {
         const { name, value } = e.target;
-        setDatos(prev => ({
-            ...prev,
-            [name]: value
-        }))
-    } 
+        onDatosChange({ [name]: value });
+    }
+
+    const handleMetodologiaChange = (e) => {
+        const nombreMetodologia = e.target.value;
+        onDatosChange({ metodologia: nombreMetodologia });
+    }
 
     const handleMiembroChange = (e) => {
         const { name, value } = e.target;
@@ -56,7 +77,7 @@ const ProyectSection = () => {
     const handleBlur = (e) => {
         const { name } = e.target;
         
-        if (name === "nombreProyecto" || name === "liderNombre" || name === "liderApellido" || name === "metodologia") {
+        if (name === "nombreProyecto" || name === "metodologia") {
             setTouched(prev => ({
                 ...prev,
                 [name]: true
@@ -97,10 +118,13 @@ const ProyectSection = () => {
             miembroRol: true
         }))
         if (!miembro.nombre || !miembro.apellido || !miembro.rol) return;
-        setEquipo([
-            ...equipo, 
-            { ...miembro, id: Date.now()}
-        ])
+        
+        const nuevoMiembro = { ...miembro, id: Date.now() };
+        const nuevoEquipo = [...equipo, nuevoMiembro];
+        
+        setEquipo(nuevoEquipo);
+        onDatosChange({ miembros: nuevoEquipo }); // Ahora usa el nuevo equipo
+        
         setMiembro({ 
             nombre: "", 
             apellido: "", 
@@ -116,7 +140,9 @@ const ProyectSection = () => {
 
     const eliminarMiembro = (id) => {
         if (equipo.length === 1) return;
-        setEquipo(equipo.filter(m => m.id !== id))
+        const nuevoEquipo = equipo.filter(m => m.id !== id);
+        setEquipo(nuevoEquipo);
+        onDatosChange({ miembros: nuevoEquipo }); // Notificar cambio
     }
 
     const editarMiembro = (item) => {
@@ -126,21 +152,21 @@ const ProyectSection = () => {
 
     const guardarEdicion = (e) => {
         e.preventDefault()
-        setEquipo(
-            equipo.map(m =>
-                m.id === editandoId ? { ...m, nombre: m.nombre, apellido: m.apellido, rol: m.rol } : m
-            )
-        )
+        const equipoActualizado = equipo.map(m =>
+            m.id === editandoId ? { ...m, nombre: m.nombre, apellido: m.apellido, rol: m.rol } : m
+        );
+        setEquipo(equipoActualizado);
+        onDatosChange({ miembros: equipoActualizado }); // Agregar esta línea
         setEditandoId(null)
         setMiembro({ nombre: "", apellido: "", rol: "" })
     }
 
     const cancelarEdicion = () => {
-        setEquipo(
-            equipo.map(m =>
-                m.id === backupMiembro.id ? backupMiembro : m
-            ) 
-        )
+        const equipoActualizado = equipo.map(m =>
+            m.id === backupMiembro.id ? backupMiembro : m
+        );
+        setEquipo(equipoActualizado);
+        onDatosChange({ miembros: equipoActualizado }); // Agregar esta línea
         setEditandoId(null)
     }
 
@@ -160,9 +186,9 @@ const ProyectSection = () => {
                                 <input 
                                     type="text"
                                     name="nombreProyecto"
-                                    value={datos.nombreProyecto}
+                                    value={datos.nombreProyecto || datosActuales.nombreProyecto}
                                     placeholder=""
-                                    onChange={handleChange}
+                                    onChange={handleChangeInput}
                                     onBlur={handleBlur}
                                 />
                                 {touched.nombreProyecto && (
@@ -171,45 +197,6 @@ const ProyectSection = () => {
                                         : <span className="icon-alert"><TriangleAlert /></span>
                                 )}
                             </div>
-                        </div>
-
-                        {/* LÍDER DEL PROYECTO */}
-                        <div className="project-leader">
-                            <h2>
-                                Líder del Proyecto:
-                            </h2>
-                            <div className="project-leader-entry">
-                                <div className="project-leader-name-entry">
-                                    <input 
-                                        type="text"
-                                        name="liderNombre"
-                                        value={datos.liderNombre}
-                                        placeholder="Nombre"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                    />
-                                    {touched.liderNombre && (
-                                        isValid("liderNombre")
-                                            ? <span className="icon-check"><Check /></span>
-                                            : <span className="icon-alert"><TriangleAlert /></span>
-                                    )} 
-                                </div>   
-                                <div className="project-leader-last-name-entry">
-                                    <input 
-                                        type="text"
-                                        name="liderApellido"
-                                        value={datos.liderApellido}
-                                        placeholder="Apellido"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                    />
-                                    {touched.liderApellido && (
-                                        isValid("liderApellido")
-                                            ? <span className="icon-check"><Check /></span>
-                                            : <span className="icon-alert"><TriangleAlert /></span>
-                                    )} 
-                                </div>   
-                            </div>                         
                         </div>
 
                         {/* EQUIPO DE DESARROLLO */}
@@ -410,11 +397,12 @@ const ProyectSection = () => {
                             <h2>
                                 Metodología utilizada:
                             </h2>
-                            <select name="" id="">
+                            <select name="" id="" onChange={handleMetodologiaChange} defaultValue="">
                                 <option value="">-- Seleccione --</option>
-                                <option value="1">Scrum</option>
-                                <option value="2">Extreme Programming (XP)</option>
-                                <option value="3">DSDM</option>
+                                {opciones.map(op => (
+                                    <option key={op} value={op}>{op}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 

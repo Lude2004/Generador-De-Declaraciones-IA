@@ -10,11 +10,8 @@
 
 .project-name-entry,
 .project-leader-name-entry,
-.project-leader-last-name-entry,
-.member-name-entry,
-.member-last-name-entry,
-.member-rol-entry {
-position: relative;
+.project-leader-last-name-entry {
+    position: relative;
     width: 100%;
 }
 
@@ -42,13 +39,25 @@ position: relative;
     flex-direction: column;
 }
 
-.fieldset-cotainer .team-data fieldset {
+.member-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.member-name-entry,
+.member-last-name-entry,
+.member-rol-entry {
+    position: relative;
     width: 100%;
 }
 
 .member-list {
     width: 100%;
-    padding: 20px;
+    padding: 10px;
     box-sizing: border-box;
 }
 
@@ -56,12 +65,12 @@ position: relative;
     font-size: 20px;
 }
 
-.member-form, 
 .member-card, 
 .member-actions,
 .successful-member-added {
     display: flex;
     flex-direction: row;
+    justify-items: center;
     align-items: center;
     gap: 10px;
 }
@@ -102,7 +111,6 @@ position: relative;
     border: 3px solid transparent;
     border-radius: 10px;
     box-sizing: border-box;
-    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
 }
