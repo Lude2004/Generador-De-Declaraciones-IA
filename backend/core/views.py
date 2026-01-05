@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from .proyectosoftware import ProyectoSoftware
 from .persona import Persona
 from .declaracionia import DeclaracionIA
@@ -250,6 +250,61 @@ def generar_declaracion(request):
             import traceback
             error_msg = traceback.format_exc()
             print(f"ERROR COMPLETO:\n{error_msg}")
+            return JsonResponse({"error": str(e)}, status=400)
+    
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+def descargar_declaracion_pdf(request):
+    """Descarga la declaración como PDF"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            proyecto_data = data.get('proyecto', {})
+            tareas_data = data.get('tareas', {})
+            
+            # Crear proyecto (igual que generar_declaracion)
+            proyecto = ProyectoSoftware(proyecto_data.get('nombreProyecto', 'Sin nombre'))
+            
+            for miembro in proyecto_data.get('miembros', []):
+                persona = Persona(
+                    miembro.get('nombre', ''),
+                    miembro.get('apellido', ''),
+                    miembro.get('rol', '')
+                )
+                proyecto.equipo.agregar_miembro(persona)
+            
+            metodologia_nombre = proyecto_data.get('metodologia', '')
+            metodologia = fabricar_estructura(metodologia_nombre)
+            if metodologia:
+                proyecto.seguir_metodologia(metodologia)
+                
+                for fase in metodologia.obtener_fases():
+                    for tarea in fase.obtener_tareas():
+                        if tarea.nombre in tareas_data:
+                            tarea_info = tareas_data[tarea.nombre]
+                            if tarea_info.get('seleccionada'):
+                                tarea.seleccionada = True
+                                herramienta = HerramientaIA(
+                                    tarea_info.get('herramienta', 'Desconocida'),
+                                    tarea_info.get('version', '1.0')
+                                )
+                                tarea.herramienta_ia = herramienta
+            
+            # Generar PDF
+            declaracion = DeclaracionIA(proyecto)
+            pdf_buffer = declaracion.generar_pdf()
+            
+            # Retornar PDF
+            return FileResponse(
+                pdf_buffer,
+                as_attachment=True,
+                filename=f"Declaracion_IA_{proyecto_data.get('nombreProyecto', 'proyecto')}.pdf",
+                content_type='application/pdf'
+            )
+            
+        except Exception as e:
+            import traceback
+            print(f"ERROR: {traceback.format_exc()}")
             return JsonResponse({"error": str(e)}, status=400)
     
     return JsonResponse({"error": "Método no permitido"}, status=405)

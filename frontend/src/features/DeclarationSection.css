@@ -1,4 +1,10 @@
-.generator:hover {
+.buttons-container {
+    display: flex;
+    gap: 10px;
+}
+
+.generator:hover,
+.download-button:hover {
     background-color: var(--color-green);
 }
 

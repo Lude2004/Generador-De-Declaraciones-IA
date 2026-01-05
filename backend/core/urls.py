@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/metodologias-lista/', views.listar_metodologias),
     path('api/metodologia/', views.obtener_detalles_metodologia),
     path('api/generar-declaracion/', views.generar_declaracion),
+    path('api/descargar-pdf/', views.descargar_declaracion_pdf),
 ]
