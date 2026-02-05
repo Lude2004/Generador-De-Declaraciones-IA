@@ -1,310 +1,150 @@
-from django.http import JsonResponse, FileResponse
-from .proyectosoftware import ProyectoSoftware
-from .persona import Persona
-from .declaracionia import DeclaracionIA
-from .metodologia import Metodologia
-from .MetodologiaAgil import MetodologiaAgil 
-from .fase import Fase
-from .tarea import Tarea
-from .herramientaia import HerramientaIA
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_http_methods
+from .models import Metodologia, Fase, Tarea
 import json
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.units import inch
+from datetime import date
+# Importar desde domain - Patrón Builder
+from domain.declaracion.declaracion_ia_director import DeclaracionIADirector
+from domain.declaracion.declaracion_ia_concrete_builder import DeclaracionIAConcreteBuilder
+# Importar desde domain - Patrón Strategy
+from domain.metodologia.metodologia import MetodologiaContexto
+# Importar desde domain - Patrón Composite
+from domain.tareas.tareas_service import TareasService
 
-from django.views.decorators.csrf import csrf_exempt
+def listar_nombres_metodologias(request):
+    # Obtenemos solo los nombres de todas las metodologías
+    nombres = Metodologia.objects.all().values_list('nombre', flat=True)
+    # Convertimos a lista para enviarlo como JSON
+    return JsonResponse(list(nombres), safe=False) 
 
-def fabricar_estructura(nombre_metodologia):
-    print(f"--- GENERANDO DATOS PARA: {nombre_metodologia} ---") # Debug
 
-    # ==========================================
-    #                 SCRUM
-    # ==========================================
-    if nombre_metodologia == MetodologiaAgil.SCRUM.value:
-        metodo = Metodologia(MetodologiaAgil.SCRUM)
-        
-        # 1. PREGAME: PLANNING
-        fase_planning = Fase("Pregame: Planning")
-        t_plan = [
-            "Definición de un nuevo release basado en el backlog conocido",
-            "Estimación del cronograma del proyecto",
-            "Estimación de costos del proyecto",
-            "Conceptualización del sistema (si es un sistema nuevo)",
-            "Análisis del sistema (completo o limitado según el caso)"
-        ]
-        for t in t_plan:
-            fase_planning.agregar_tarea(Tarea(t, "Planificación"))
-        metodo.agregar_fase(fase_planning)
-
-        # 2. PREGAME: ARCHITECTURE
-        fase_arch = Fase("Pregame: Architecture")
-        t_arch = [
-            "Diseño de la implementación de los ítems del backlog",
-            "Diseño de alto nivel del sistema",
-            "Modificación de la arquitectura del sistema"
-        ]
-        for t in t_arch:
-            fase_arch.agregar_tarea(Tarea(t, "Arquitectura"))
-        metodo.agregar_fase(fase_arch)
-
-        # 3. GAME: DEVELOPMENT
-        fase_game = Fase("Game: Development Sprints")
-        t_game = [
-            "Desarrollo de funcionalidades del nuevo release",
-            "Ejecución de sprints iterativos",
-            "Gestión continua del tiempo",
-            "Gestión de requisitos",
-            "Control de calidad",
-            "Control de costos",
-            "Adaptación a la competencia y cambios"
-        ]
-        for t in t_game:
-            fase_game.agregar_tarea(Tarea(t, "Desarrollo"))
-        metodo.agregar_fase(fase_game)
-
-        # 4. POSTGAME: CLOSURE
-        fase_post = Fase("Postgame: Closure")
-        t_post = [
-            "Preparación del producto para liberación",
-            "Elaboración de documentación final",
-            "Pruebas previas a la liberación (staged testing)",
-            "Liberación del producto"
-        ]
-        for t in t_post:
-            fase_post.agregar_tarea(Tarea(t, "Cierre"))
-        metodo.agregar_fase(fase_post)
-
-        return metodo
-
-    # ==========================================
-    #       EXTREME PROGRAMMING (XP) - ¡NUEVO!
-    # ==========================================
-    elif nombre_metodologia == MetodologiaAgil.XP.value:
-        metodo = Metodologia(MetodologiaAgil.XP)
-        
-        # 1. EXPLORACIÓN
-        fase_exploracion = Fase("Exploración")
-        t_exploracion = [
-            "Definición de requisitos",
-            "Descripción del diseño",
-            "Descripción de la arquitectura del cliente",
-            "Descripción de las herramientas y el software utilizado",
-            "Creación de historias de usuario completas y detalladas",
-            "Estimación de tiempos"
-        ]
-        for t in t_exploracion:
-            fase_exploracion.agregar_tarea(Tarea(t, "Análisis Inicial"))
-        metodo.agregar_fase(fase_exploracion)
-
-        # 2. PLANIFICACIÓN
-        fase_plan = Fase("Planificación")
-        fase_plan.agregar_tarea(Tarea("Creación de tarjetas de tareas", "Gestión"))
-        metodo.agregar_fase(fase_plan)
-
-        # 3. ITERACIÓN A LANZAMIENTO
-        fase_iteracion = Fase("Iteración a Lanzamiento")
-        t_iteracion = [
-            "Diseño",
-            "Codificación",
-            "Pruebas unitarias y funcionales",
-            "Refactorización del código"
-        ]
-        for t in t_iteracion:
-            fase_iteracion.agregar_tarea(Tarea(t, "Ingeniería"))
-        metodo.agregar_fase(fase_iteracion)
-
-        # 4. PRODUCCIÓN
-        fase_prod = Fase("Producción")
-        t_prod = [
-            "Entrega de pequeñas versiones",
-            "Ciclos de retroalimentación rápidos",
-            "Monitoreo del sistema"
-        ]
-        for t in t_prod:
-            fase_prod.agregar_tarea(Tarea(t, "Despliegue"))
-        metodo.agregar_fase(fase_prod)
-
-        # 5. MANTENIMIENTO
-        fase_mant = Fase("Mantenimiento")
-        t_mant = [
-            "Actualización del software",
-            "Desarrollo de nuevas funcionalidades",
-            "Eliminación de las modificaciones"
-        ]
-        for t in t_mant:
-            fase_mant.agregar_tarea(Tarea(t, "Soporte"))
-        metodo.agregar_fase(fase_mant)
-
-        # 6. MUERTE (CIERRE)
-        fase_muerte = Fase("Muerte (Cierre del Proyecto)")
-        t_muerte = [
-            "Verificación de todos los requisitos",
-            "Redacción de la documentación necesaria del sistema"
-        ]
-        for t in t_muerte:
-            fase_muerte.agregar_tarea(Tarea(t, "Documentación Final"))
-        metodo.agregar_fase(fase_muerte)
-
-        return metodo
-    
-    return None
-
-def listar_metodologias(request):
-    """Devuelve ['Scrum', 'Extreme Programming'] para el dropdown"""
-    opciones = [m.value for m in MetodologiaAgil]
-    return JsonResponse(opciones, safe=False)
-
-def obtener_detalles_metodologia(request):
+# Nota que ahora recibimos 'nombre_metodo' como argumento extra
+def obtener_metodologia(request, nombre_metodo):
     """
-    Convierte tus objetos (Clases) a JSON (Diccionarios)
+    Obtiene la estructura de una metodología.
+    Usa el patrón Strategy desde domain/metodologia
     """
-    nombre = request.GET.get("nombre")
-
-    # 1. Llamamos a la fábrica para obtener los datos NUEVOS
-    metodologia = fabricar_estructura(nombre)
-    
-    if not metodologia:
-        return JsonResponse({"error": "Metodología no encontrada"}, status=404)
-
-    # AQUÍ ESTABA EL ERROR: Borré la línea que decía "metodologia = PROYECTO_DEMO"
-    
-    datos = {
-        "nombre": metodologia.nombre,
-        "fases": []
-    }
-
-    for fase in metodologia.obtener_fases():
-        fase_dict = {
-            "nombre": fase.nombre,
-            "tareas": []
+    try:
+        # Usar Strategy Pattern para obtener la estrategia correcta
+        contexto = MetodologiaContexto(nombre_metodo)
+        
+        # El contexto automáticamente delega a la estrategia correcta
+        data = {
+            "metodologia": contexto.obtener_nombre(),
+            "fases": contexto.obtener_fases()
         }
-        for tarea in fase.obtener_tareas():
-            fase_dict["tareas"].append({
-                "nombre": tarea.nombre,
-                "descripcion": tarea.descripcion,
-                "seleccionada": tarea.seleccionada
-            })
-        datos["fases"].append(fase_dict)
+        
+        return JsonResponse(data)
 
-    return JsonResponse(datos)
+    except ValueError as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            "error": f"Error al obtener metodología: {str(e)}"
+        }, status=500)
 
-@csrf_exempt
+
+@require_http_methods(["POST"])
 def generar_declaracion(request):
-    """Genera la declaración de uso de IA"""
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            print(f"DEBUG - Datos recibidos: {data}")
-            
-            proyecto_data = data.get('proyecto', {})
-            tareas_data = data.get('tareas', {})
-            
-            print(f"DEBUG - Proyecto data: {proyecto_data}")
-            print(f"DEBUG - Tareas data: {tareas_data}")
-            
-            # 1. Crear proyecto
-            proyecto = ProyectoSoftware(proyecto_data.get('nombreProyecto', 'Sin nombre'))
-            print(f"DEBUG - Proyecto creado: {proyecto.nombre}")
-            
-            # 2. Agregar miembros del equipo
-            for miembro in proyecto_data.get('miembros', []):
-                persona = Persona(
-                    miembro.get('nombre', ''),
-                    miembro.get('apellido', ''),
-                    miembro.get('rol', '')
-                )
-                proyecto.equipo.agregar_miembro(persona)
-                print(f"DEBUG - Miembro agregado: {persona.nombre}")
-            
-            # 3. Obtener y asignar metodología
-            metodologia_nombre = proyecto_data.get('metodologia', '')
-            print(f"DEBUG - Metodología seleccionada: {metodologia_nombre}")
-            
-            metodologia = fabricar_estructura(metodologia_nombre)
-            if metodologia:
-                proyecto.seguir_metodologia(metodologia)
-                print(f"DEBUG - Metodología asignada")
-                
-                # 4. Marcar tareas seleccionadas y asignar herramientas
-                for fase in metodologia.obtener_fases():
-                    for tarea in fase.obtener_tareas():
-                        if tarea.nombre in tareas_data:
-                            tarea_info = tareas_data[tarea.nombre]
-                            if tarea_info.get('seleccionada'):
-                                tarea.seleccionada = True
-                                herramienta = HerramientaIA(
-                                    tarea_info.get('herramienta', 'Desconocida'),
-                                    tarea_info.get('version', '1.0')
-                                )
-                                tarea.herramienta_ia = herramienta
-                                print(f"DEBUG - Tarea marcada: {tarea.nombre}")
-            else:
-                print(f"DEBUG - ERROR: Metodología no encontrada")
-            
-            # 5. Generar declaración
-            print(f"DEBUG - Generando declaración...")
-            declaracion = DeclaracionIA(proyecto)
-            texto = declaracion.generar_texto_declaracion()
-            print(f"DEBUG - Declaración generada exitosamente")
-            
-            return JsonResponse({"texto_declaracion": texto})
-            
-        except Exception as e:
-            import traceback
-            error_msg = traceback.format_exc()
-            print(f"ERROR COMPLETO:\n{error_msg}")
-            return JsonResponse({"error": str(e)}, status=400)
-    
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+    """
+    Genera el texto de la declaración de IA.
+    Usa el patrón Builder desde domain/
+    """
+    try:
+        data = json.loads(request.body)
+        proyecto_data = data.get('proyecto', {})
+        tareas_data = data.get('tareas', {})
 
-def descargar_declaracion_pdf(request):
-    """Descarga la declaración como PDF"""
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            proyecto_data = data.get('proyecto', {})
-            tareas_data = data.get('tareas', {})
-            
-            # Crear proyecto (igual que generar_declaracion)
-            proyecto = ProyectoSoftware(proyecto_data.get('nombreProyecto', 'Sin nombre'))
-            
-            for miembro in proyecto_data.get('miembros', []):
-                persona = Persona(
-                    miembro.get('nombre', ''),
-                    miembro.get('apellido', ''),
-                    miembro.get('rol', '')
-                )
-                proyecto.equipo.agregar_miembro(persona)
-            
-            metodologia_nombre = proyecto_data.get('metodologia', '')
-            metodologia = fabricar_estructura(metodologia_nombre)
-            if metodologia:
-                proyecto.seguir_metodologia(metodologia)
-                
-                for fase in metodologia.obtener_fases():
-                    for tarea in fase.obtener_tareas():
-                        if tarea.nombre in tareas_data:
-                            tarea_info = tareas_data[tarea.nombre]
-                            if tarea_info.get('seleccionada'):
-                                tarea.seleccionada = True
-                                herramienta = HerramientaIA(
-                                    tarea_info.get('herramienta', 'Desconocida'),
-                                    tarea_info.get('version', '1.0')
-                                )
-                                tarea.herramienta_ia = herramienta
-            
-            # Generar PDF
-            declaracion = DeclaracionIA(proyecto)
-            pdf_buffer = declaracion.generar_pdf()
-            
-            # Retornar PDF
-            return FileResponse(
-                pdf_buffer,
-                as_attachment=True,
-                filename=f"Declaracion_IA_{proyecto_data.get('nombreProyecto', 'proyecto')}.pdf",
-                content_type='application/pdf'
-            )
-            
-        except Exception as e:
-            import traceback
-            print(f"ERROR: {traceback.format_exc()}")
-            return JsonResponse({"error": str(e)}, status=400)
-    
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+        # Usar el Builder Pattern desde domain
+        director = DeclaracionIADirector()
+        builder = DeclaracionIAConcreteBuilder()
+        director.set_builder(builder)
+        
+        # El director orquesta la construcción
+        texto_declaracion = director.construir_declaracion(proyecto_data, tareas_data)
+
+        return JsonResponse({
+            'texto_declaracion': texto_declaracion
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'error': f'Error al generar declaración: {str(e)}'
+        }, status=400)
+
+
+
+@require_http_methods(["POST"])
+def descargar_pdf(request):
+    """
+    Genera y descarga la declaración en formato PDF.
+    Reutiliza el Builder desde domain/
+    """
+    try:
+        data = json.loads(request.body)
+        proyecto_data = data.get('proyecto', {})
+        tareas_data = data.get('tareas', {})
+        nombre_proyecto = proyecto_data.get('nombreProyecto', 'Declaracion_IA')
+        
+        # Usar el Builder Pattern para generar el texto
+        director = DeclaracionIADirector()
+        builder = DeclaracionIAConcreteBuilder()
+        director.set_builder(builder)
+        texto_declaracion = director.construir_declaracion(proyecto_data, tareas_data)
+        
+        # Crear PDF a partir del texto
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Estilos
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=11,
+            textColor='#1a1a1a',
+            spaceAfter=10,
+            spaceBefore=10,
+            fontName='Helvetica-Bold'
+        )
+        
+        body_style = ParagraphStyle(
+            'CustomBody',
+            parent=styles['BodyText'],
+            fontSize=10,
+            leading=14,
+            alignment=4  # Justified
+        )
+        
+        # Agregar contenido al PDF
+        for linea in texto_declaracion.split("\n"):
+            if linea.strip():
+                if linea.isupper() and len(linea) > 3:
+                    elements.append(Paragraph(linea, heading_style))
+                else:
+                    elements.append(Paragraph(linea, body_style))
+                elements.append(Spacer(1, 0.08*inch))
+            else:
+                elements.append(Spacer(1, 0.1*inch))
+        
+        # Generar PDF
+        doc.build(elements)
+        buffer.seek(0)
+        
+        # Retornar como descarga
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Declaracion_IA_{nombre_proyecto}.pdf"'
+        return response
+
+    except Exception as e:
+        return JsonResponse({
+            'error': f'Error al generar PDF: {str(e)}'
+        }, status=400)

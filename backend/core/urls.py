@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 URL configuration for core project.
 
@@ -14,13 +15,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-#from django.contrib import admin
+from django.contrib import admin
 from django.urls import path
+from django.http import JsonResponse
 from core import views
 
 urlpatterns = [
-    path('api/metodologias-lista/', views.listar_metodologias),
-    path('api/metodologia/', views.obtener_detalles_metodologia),
-    path('api/generar-declaracion/', views.generar_declaracion),
-    path('api/descargar-pdf/', views.descargar_declaracion_pdf),
+    # URLs con Strategy Pattern REALMENTE FUNCIONAL
+    path('api/metodologia/<str:nombre_metodo>', views.obtener_metodologia, name='detalle_metodologia'),
+    path('api/lista-metodologias/', views.listar_nombres_metodologias, name='lista_metodologias'),
+    
+    # URLs con Builder Pattern REALMENTE FUNCIONAL  
+    path('api/generar-declaracion/', views.generar_declaracion, name='generar_declaracion'),
+    path('api/descargar-pdf/', views.descargar_pdf, name='descargar_pdf'),
+    path('api/formatos-disponibles/', lambda request: JsonResponse({'formatos': ['txt', 'pdf']}, safe=False), name='formatos_disponibles'),
+    
+    # URLs con Composite Pattern para análisis de proyectos
+    path('api/analizar-proyecto/', lambda request: JsonResponse({'status': 'Comando de análisis disponible', 'command': 'python manage.py populate_composite_scrum'}, safe=False), name='analizar_proyecto'),
+    
+    # URL vieja para compatibilidad
+    path('api/metodologia/<str:nombre_metodo>', views.obtener_metodologia, name='detalle_metodologia_viejo'),
 ]

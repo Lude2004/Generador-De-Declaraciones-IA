@@ -9,8 +9,11 @@ class Equipo:
         self.miembros: List[Persona] = []
 
 
-    def agregar_miembro(self, persona: Persona):
+    def agregar_miembro(self, persona: Persona) -> None:
         self.miembros.append(persona)
+
+    def remover_miembro(self, persona: Persona) -> None:
+        self.miembros.remove(persona)
         
     def listar_miembros(self) -> List[Persona]:
         return self.miembros

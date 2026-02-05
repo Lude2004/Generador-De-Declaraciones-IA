@@ -37,6 +37,7 @@
 .team-data {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .member-form {
@@ -46,6 +47,7 @@
     align-items: center;
     width: 100%;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .member-name-entry,
@@ -75,40 +77,56 @@
     gap: 10px;
 }
 
+.member-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
 .successful-member-added {
-    color: var(--color-green);
+    color: var(--color-accent-secondary);
 }
 
 .icon-check {
     position: absolute;
     right: 12px;
-    top: 55%;
+    top: 60%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: var(--color-green);
+    color: var(--color-accent-secondary);
 }
 
 .icon-alert {
     position: absolute;
     right: 12px;
-    top: 55%;
+    top: 28%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: var(--color-yellow);
+    color: var(--color-accent-warning);
 }
 
-.member-form {
-    width: 100%;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+/* ===== ERROR - MESSEAGE ===== */
+.error-message {
+    text-align: left;
+    color: var(--color-red);
+    font-size: 14px;
+    display: block;
 }
 
 .member-card {
     width: 100%;
     padding: 10px;
-    background-color: #ffffff;
-    border: 3px solid transparent;
+    background-color: var(--color-secondary);
+    border: 3px solid var(--color-tertiary);
     border-radius: 10px;
     box-sizing: border-box;
     justify-content: space-between;
@@ -119,7 +137,17 @@
 .member-last-name, 
 .member-rol {
     width: 100px;
-    color:rgba(0, 0, 0, 0.87);
+    color: var(--color-text-primary);
+}
+
+hr {
+    border: 1px solid var(--color-accent-secondary);
+    height: 30px;
+}
+
+.member-rol {
+    font-size: 15px;
+    font-style: italic;
 }
 
 /* ===== INPUT - TEAM DATA ===== */
@@ -142,17 +170,45 @@
 .save:hover, 
 .add:hover, 
 .edit:hover {
-    background-color: var(--color-green);
+    background-color: var(--color-accent-secondary);
 }
-.cancel, 
-.delete {
-    color: rgba(0, 0, 0, 0.87);
-    background-color: #ffff;
-    border: 3px solid #0F2854;
+
+.save,
+.edit,
+.add {
+    padding: 10px 20px;
+    min-width: 120px;
+    font-weight: 600;
+    background-color: var(--color-tertiary);
 }
-.cancel:hover, 
-.delete:hover {
-    color: rgba(0, 0, 0, 0.87);
-    background-position: top;
+
+.cancel {
+    color: var(--color-white);
+    background-color: var(--color-secondary);
     border: 3px solid var(--color-red);
+    padding: 10px 20px;
+    min-width: 120px;
+    font-weight: 600;
+}
+
+.cancel:hover {
+    border: 3px solid var(--color-red);
+    background-color: var(--color-red);
+    color: var(--color-white);
+}
+
+.delete {
+    color: var(--color-white);
+    background-color: var(--color-secondary);
+    border: 3px solid var(--color-accent-danger);
+    padding: 10px 20px;
+    min-width: 120px;
+    font-weight: 600;
+}
+
+.delete:hover {
+    color: var(--color-white);
+    background-color: var(--color-red);
+    border: 3px solid var(--color-red);
+    cursor: pointer;
 }

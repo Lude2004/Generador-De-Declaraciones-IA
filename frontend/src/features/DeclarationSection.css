@@ -3,17 +3,33 @@
     gap: 10px;
 }
 
-.generator:hover,
-.download-button:hover {
-    background-color: var(--color-green);
+.generator:hover {
+    background-color: var(--color-accent-secondary);
+}
+
+.download {
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+    border: 3px solid var(--color-accent-primary);
+}
+
+.download:hover {
+    border: 3px solid var(--color-accent-secondary);
+    background-color: var(--color-secondary);
+    color: var(--color-white);
 }
 
 textarea {
     width: 99%;
     height: 500px;
-    border: 2px solid;
+    border: 2px solid var(--color-tertiary);
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
     resize: none;
     margin: 20px 0 10px 0;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: monospace;
 }
 #output {
     height: 400px;

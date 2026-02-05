@@ -4,15 +4,30 @@
   font-weight: 400;
 
   color: var(--color-black);
-  background-color: #F3F4F4;
+  background-color: var(--color-primary);
 
-  --color-primary: #37353E;
-  --color-secondary: #393E46;
+  /* ===== PALETA OSCURA ===== */
+  --color-primary: #0f172a;           /* Fondo principal */
+  --color-secondary: #1e293b;          /* Cards y contenedores */
+  --color-tertiary: #334155;           /* Hover y elementos activos */
+  
+  /* ===== ACENTOS ===== */
+  --color-accent-primary: #3b82f6;      /* Botones primarios */
+  --color-accent-secondary: #10b981;      /* Success */
+  --color-accent-warning: #f59e0b;      /* Warnings */
+  --color-accent-danger: #ef4444;        /* Errores */
+  
+  /* ===== TEXTO ===== */
+  --color-text-primary: #f1f5f9;         /* Texto principal */
+  --color-text-secondary: #cbd5e1;       /* Texto secundario */
+  --color-text-muted: #64748b;          /* Texto deshabilitado */
+  --color-text-inverse: #1e293b;           /* Texto sobre fondos claros */
 
   --color-black: rgb(0, 0, 0, 82);
   --color-green: #018790;
   --color-red: #E43A42;
   --color-yellow: #FAAC68;
+  --color-white: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,8 +47,9 @@
 /* ===== HEADER GENERAL ===== */
 .header {
   grid-area: header;
-  color: #ffffff;
-  background-color: var(--color-primary);
+  padding: 30px;
+  color: var(--color-white);
+  background-color: var(--color-tertiary);
 }
 
 /* ===== MAIN GENERAL ===== */
@@ -45,8 +61,9 @@
 /* ===== FOOTER GENERAL ===== */
 .footer {
   grid-area: footer;
-  color: #ffffff;
-  background-color: var(--color-primary);
+  padding: 10px;
+  color: var(--color-white);
+  background-color: var(--color-tertiary);
 }
 
 /* ===== H1 GENERAL ===== */
@@ -66,7 +83,7 @@ button {
   font-size: 16px;
   font-weight: 500;
   font-family: inherit;
-  color: #ffffff;
+  color: var(--color-white);
   background-color: var(--color-secondary);
   cursor: pointer;
   transition: background-color 0.25s;
@@ -74,7 +91,9 @@ button {
 
 /* ===== FIELDSET GENERAL ===== */
 fieldset {
-  border: 3px solid;
+  border: 3px solid var(--color-white);
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .fieldset-container {
@@ -101,7 +120,7 @@ label {
 /* ===== PARAGRAPH ===== */
 p {
   font-size: 15px;
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* ===== INPUT, SELECT GENERAL ===== */
@@ -110,8 +129,9 @@ input {
   height: 50px;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid var(--color-black);
-  background-color: #ffffff;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-tertiary);
+  background-color: var(--color-secondary);
   box-sizing: border-box;
 }
 select {
@@ -119,12 +139,14 @@ select {
   height: 50px;
   padding: 8px;
   border-radius: 10px;
-  background-color: #ffffff;
+  background-color: var(--color-secondary);
+  color: var(--color-text-primary);
   position: relative;
-  border: 1px solid var(--color-black);
+  border: 1px solid var(--color-tertiary);
   box-sizing: border-box;
 }
 input:focus, 
 select:focus {
-  border: 3px solid var(--color-tertiary);
+  border: 3px solid var(--color-accent-primary);
+  outline: none;
 }

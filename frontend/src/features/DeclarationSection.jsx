@@ -11,16 +11,35 @@ const DeclarationSection  = ({ datosProyecto, tareasSeleccionadas, onDeclaracion
 
     const handleGenerar = async () => {
         // Validar que haya datos
-        if (!datosProyecto.nombreProyecto || !datosProyecto.metodologia || datosProyecto.miembros.length === 0) {
-            alert("Por favor complete los campos: Nombre del Proyecto, Metodología y Equipo de Desarrollo");
+        if (!datosProyecto.nombreProyecto) {
+            alert("Por favor registra el nombre del proyecto de software");
             return;
         }
+
+        if (!datosProyecto.metodologia) {
+            alert("Por favor selecciona la metodología utilizada en el proyecto de software");
+            return;
+        }
+
+        if (datosProyecto.miembros.length === 0) {
+            alert("Por favor registra la(s) persona(s) que forma(n) parte del Equipo de Desarrollo");
+            return;
+        }        
 
         if (Object.keys(tareasSeleccionadas).length === 0 || !Object.values(tareasSeleccionadas).some(t => t.seleccionada)) {
             alert("Por favor seleccione al menos una tarea");
             return;
         }
 
+        const tareasIncompletas = Object.entries(tareasSeleccionadas)
+            .filter(([_, tarea]) => tarea.seleccionada)
+            .filter(([_, tarea]) => !tarea.herramienta?.trim() || !tarea.version?.trim());
+
+        if (tareasIncompletas.length > 0) {
+            const nombresTareas = tareasIncompletas.map(([nombre]) => nombre).join("\n");
+            alert(`Por favor registra el nombre y la versión de la herramienta IA para las siguientes tareas:\n\n${nombresTareas}`);
+            return;
+        }
         setLoading(true);  
 
         const payload = {
@@ -98,7 +117,7 @@ const DeclarationSection  = ({ datosProyecto, tareasSeleccionadas, onDeclaracion
                             onClick={handleGenerar}
                             disabled={loading}
                         >
-                            Generar <Cog />
+                            <Cog /> Generar
                         </button>
                         {declaracionGenerada && (
                             <button
@@ -107,7 +126,7 @@ const DeclarationSection  = ({ datosProyecto, tareasSeleccionadas, onDeclaracion
                                 onClick={handleDescargar}
                                 disabled={loading}
                             >
-                                Descargar PDF <ArrowDownToLine /> 
+                                <ArrowDownToLine /> Descargar PDF 
                             </button>
                         )}
                     </div>

@@ -2,7 +2,7 @@ import "./Main.css";
 import ProyectSection from "../features/ProyectSection";
 import TaskSection from "../features/TaskSection";
 import DeclarationSection from "../features/DeclarationSection";
-import { getDetalleMetodologia } from "../services/Api";
+import { getDetalleMetodologia } from "../services/api";
 import { useState, useEffect } from "react";
 
 const Main = () => {
@@ -52,6 +52,28 @@ const Main = () => {
         }
     };
 
+    const handleTareasChange = (nuevasTareas) => {
+        // Filtrar solo las tareas seleccionadas
+        const tareasValidas = Object.entries(nuevasTareas)
+            .filter(([_, tarea]) => tarea.seleccionada)
+            .reduce((acc, [nombre, tarea]) => {
+                acc[nombre] = tarea;
+                return acc;
+            }, {});
+        
+        // Validar que las tareas seleccionadas tengan campos requeridos
+        const tienErrores = Object.entries(tareasValidas).some(([_, tarea]) => 
+            !tarea.herramienta?.trim() || !tarea.version?.trim() || !tarea.justificacion?.trim()
+        );
+        
+        if (tienErrores) {
+            console.warn("Hay tareas seleccionadas sin herramienta, versión o justificación completas");
+        }
+        
+        // Actualizar estado
+        setTareasSeleccionadas(tareasValidas);
+    };
+
     const cargarEstructuraMetodologia = async (nombre) => {
         try {
             const data = await getDetalleMetodologia(nombre);
@@ -59,17 +81,18 @@ const Main = () => {
             setTareasSeleccionadas({});
         } catch (error) {
             console.error("Error cargando metodología", error);
+            // Mostrar error al usuario
+            setEstructuraMetodologia({
+                error: `No se pudo cargar "${nombre}". Intente nuevamente.`
+            });
         }
     };
 
-    const handleTareasChange = (nuevasTareas) => {
-        setTareasSeleccionadas(nuevasTareas);
-    };
 
     return (
         <main className="main">
             <div className="info">
-                <h2>Para divulgar el uso de IA generativa, complete los campos correspondientes.</h2>
+                <h2 className="text-main">Para divulgar el uso de IA generativa, complete los campos correspondientes.</h2>
                 <p className="text-main">Tras esto, la declaración se generará automáticamente.</p>
             </div>
             <div className="form">
@@ -79,6 +102,7 @@ const Main = () => {
                 />
                 <TaskSection 
                     estructuraDatos={estructuraMetodologia}
+                    miembros={datosProyecto.miembros}
                     onTareasChange={handleTareasChange} 
                 />
                 <DeclarationSection 

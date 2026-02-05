@@ -9,13 +9,9 @@ import {
     TriangleAlert,
     User  
 } from 'lucide-react';
-import { getListaMetodologias } from "../services/Api";
+import { getListaMetodologias } from "../services/api";
 
-const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
-    const [datos, setDatos] = useState({
-        nombreProyecto: "",
-        metodologia: ""
-    })
+const ProyectSection = ({ datosActuales, onDatosChange }) => {
     const [equipo, setEquipo] = useState([])
     const [miembro, setMiembro] = useState({
         nombre: "",
@@ -35,17 +31,6 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
     const [backupMiembro, setBackupMiembro] = useState(null)
 
     const [opciones, setOpciones] = useState([])
-
-    // Cargar miembros del localStorage al montar
-    useEffect(() => {
-        const datosGuardados = localStorage.getItem('datosProyecto');
-        if (datosGuardados) {
-            const datos = JSON.parse(datosGuardados);
-            if (datos.miembros && datos.miembros.length > 0) {
-                setEquipo(datos.miembros);
-            }
-        }
-    }, []);
 
     // Sincronizar equipo con el padre
     useEffect(() => {
@@ -102,7 +87,7 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
     }
 
     const isValid = (field) => {
-        return datos[field]?.trim() !== "";
+        return datosActuales[field]?.trim() !== "";
     }
 
     const isMiembroValid = (field) => {
@@ -139,10 +124,9 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
     }
 
     const eliminarMiembro = (id) => {
-        if (equipo.length === 1) return;
         const nuevoEquipo = equipo.filter(m => m.id !== id);
         setEquipo(nuevoEquipo);
-        onDatosChange({ miembros: nuevoEquipo }); // Notificar cambio
+        onDatosChange({ miembros: nuevoEquipo });
     }
 
     const editarMiembro = (item) => {
@@ -186,7 +170,7 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                 <input 
                                     type="text"
                                     name="nombreProyecto"
-                                    value={datos.nombreProyecto || datosActuales.nombreProyecto}
+                                    value={datosActuales.nombreProyecto}
                                     placeholder=""
                                     onChange={handleChangeInput}
                                     onBlur={handleBlur}
@@ -195,6 +179,11 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                     isValid("nombreProyecto")
                                         ? <span className="icon-check"><Check /></span>
                                         : <span className="icon-alert"><TriangleAlert /></span>
+                                )}
+                                {touched.nombreProyecto && datosActuales.nombreProyecto?.trim() === "" && (
+                                    <p className="error-message">
+                                        Por favor ingrese el nombre del proyecto de software.
+                                    </p>
                                 )}
                             </div>
                         </div>
@@ -221,6 +210,11 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                             ? <span className="icon-check"><Check /></span>
                                             : <span className="icon-alert"><TriangleAlert /></span>
                                     )} 
+                                    {touched.miembroNombre && miembro.nombre?.trim() === "" && (
+                                        <p className="error-message">
+                                            Por favor ingrese el nombre de la persona.
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="member-name-entry">
                                     <input 
@@ -236,7 +230,12 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                         isMiembroValid("apellido")
                                             ? <span className="icon-check"><Check /></span>
                                             : <span className="icon-alert"><TriangleAlert /></span>
-                                    )}                                     
+                                    )}  
+                                    {touched.miembroApellido && miembro.apellido?.trim() === "" && (
+                                        <p className="error-message">
+                                            Por favor ingrese el apellido de la persona.
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="member-rol-entry">
                                     <input 
@@ -252,7 +251,13 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                         isMiembroValid("rol")
                                             ? <span className="icon-check"><Check /></span>
                                             : <span className="icon-alert"><TriangleAlert /></span>
-                                    )}                                     
+                                    )}   
+                                    {touched.miembroRol && miembro.rol?.trim() === "" && (
+                                        <p className="error-message">
+                                            Por favor ingrese el rol que desempeña la persona.
+                                        </p>
+                                    )}   
+                                    <p className="note"></p>                               
                                 </div>
 
                                 <button
@@ -260,134 +265,138 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                     type="button"
                                     onClick={agregarMiembro}
                                 >
-                                    Agregar <UserPlus />
+                                    <UserPlus /> Agregar
                                 </button>
                             </div>
 
                             {/* LISTA DE LOS MIEMBROS */}
                             <fieldset>
                                 <legend className="card-title">Miembros Registrados</legend>
-                                <div className="member-list">
-                                    {equipo.map(item => (
-                                        <div className="member-card" key={item.id}>
-                                            {editandoId === item.id ? (
-                                                <></>
-                                            ) : (
-                                                <div className="successful-member-added">
-                                                    <User />
-                                                </div>
-                                            )}
-
-                                            {/* NOMBRE DEL MIEMBRO */}
-                                            {editandoId === item.id ? (
-                                                <input
-                                                    className="edit-name"
-                                                    type="text"
-                                                    name="nombre"
-                                                    value={item.nombre}
-                                                    onChange={(e) =>
-                                                        setEquipo(
-                                                            equipo.map(m =>
-                                                                m.id === item.id
-                                                                    ? { ...m, nombre: e.target.value }
-                                                                    : m
-                                                        ))
-                                                    } 
-                                                />
-                                            ) : (
-                                                <p className="member-name">
-                                                    {item.nombre}
-                                                </p>
-                                            )}
-
-                                            {/*APELLIDO DEL MIEMBRO */}
-                                            {editandoId === item.id ? (
-                                                <input
-                                                    className="edit-last-name"
-                                                    type="text"
-                                                    name="apellido"
-                                                    value={item.apellido}
-                                                    onChange={(e) =>
-                                                        setEquipo(
-                                                            equipo.map(m =>
-                                                                m.id === item.id
-                                                                    ? { ...m, apellido: e.target.value }
-                                                                    : m
-                                                        ))
-                                                    }
-                                                />
-                                            ) : (
-                                                <p className="member-last-name">
-                                                    {item.apellido}
-                                                </p>
-                                            )}
-
-                                            {/* ROL DEL MIEMBRO */}
-                                            {editandoId === item.id ? (
-                                                <input
-                                                    className="edit-rol"
-                                                    type="text"
-                                                    name="rol"
-                                                    value={item.rol}
-                                                    onChange={(e) =>
-                                                        setEquipo(
-                                                            equipo.map(m =>
-                                                                m.id === item.id
-                                                                    ? { ...m, rol: e.target.value }
-                                                                    : m
-                                                        ))
-                                                    }
-                                                />
-                                            ) : (
-                                                <p className="member-rol">
-                                                    {item.rol}
-                                                </p>
-                                            )}
-
-                                            {/* BOTONES */}
-                                            <div className="member-actions">
-
+                                <div className="fieldset-container">
+                                    <div className="member-list">
+                                        {equipo.map(item => (
+                                            <div className="member-card" key={item.id}>
                                                 {editandoId === item.id ? (
-                                                    <>
-                                                        <button
-                                                            className="save"
-                                                            type="button"
-                                                            onClick={guardarEdicion}
-                                                        >
-                                                            Guardar <Save />
-                                                        </button>
-                                                        <button
-                                                            className="cancel"
-                                                            type="button"
-                                                            onClick={() => cancelarEdicion()}
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                    </>
+                                                    <></>
                                                 ) : (
-                                                    <>
-                                                        <button
-                                                            className="edit"
-                                                            type="button"
-                                                            onClick={() => editarMiembro(item)}
-                                                        >
-                                                            Editar <Pencil />
-                                                        </button>
-                                                        {equipo.length > 1 && (
+                                                    <div className="successful-member-added">
+                                                        <User />
+                                                    </div>
+                                                )}
+
+                                                {/* NOMBRE DEL MIEMBRO */}
+                                                {editandoId === item.id ? (
+                                                    <input
+                                                        className="edit-name"
+                                                        type="text"
+                                                        name="nombre"
+                                                        value={item.nombre}
+                                                        onChange={(e) =>
+                                                            setEquipo(
+                                                                equipo.map(m =>
+                                                                    m.id === item.id
+                                                                        ? { ...m, nombre: e.target.value }
+                                                                        : m
+                                                            ))
+                                                        } 
+                                                    />
+                                                ) : (
+                                                    <p className="member-name">
+                                                        {item.nombre}
+                                                    </p>
+                                                )}
+
+                                                {/*APELLIDO DEL MIEMBRO */}
+                                                {editandoId === item.id ? (
+                                                    <input
+                                                        className="edit-last-name"
+                                                        type="text"
+                                                        name="apellido"
+                                                        value={item.apellido}
+                                                        onChange={(e) =>
+                                                            setEquipo(
+                                                                equipo.map(m =>
+                                                                    m.id === item.id
+                                                                        ? { ...m, apellido: e.target.value }
+                                                                        : m
+                                                            ))
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <p className="member-last-name">
+                                                        {item.apellido}
+                                                    </p>
+                                                )}
+
+                                                <div className="line">
+                                                    <hr />
+                                                </div>
+
+                                                {/* ROL DEL MIEMBRO */}
+                                                {editandoId === item.id ? (
+                                                    <input
+                                                        className="edit-rol"
+                                                        type="text"
+                                                        name="rol"
+                                                        value={item.rol}
+                                                        onChange={(e) =>
+                                                            setEquipo(
+                                                                equipo.map(m =>
+                                                                    m.id === item.id
+                                                                        ? { ...m, rol: e.target.value }
+                                                                        : m
+                                                            ))
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <p className="member-rol">
+                                                        <strong>{item.rol}</strong>
+                                                    </p>
+                                                )}
+
+                                                {/* BOTONES */}
+                                                <div className="member-actions">
+
+                                                    {editandoId === item.id ? (
+                                                        <div className="action-buttons">
+                                                            <button
+                                                                className="save"
+                                                                type="button"
+                                                                onClick={guardarEdicion}
+                                                            >
+                                                                <Save /> Guardar
+                                                            </button>
+                                                            <button
+                                                                className="cancel"
+                                                                type="button"
+                                                                onClick={() => cancelarEdicion()}
+                                                            >
+                                                                Cancelar
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="action-buttons">
+                                                            <button
+                                                                className="edit"
+                                                                type="button"
+                                                                onClick={() => editarMiembro(item)}
+                                                            >
+                                                                <Pencil /> Editar
+                                                            </button>
                                                             <button
                                                                 className="delete"
                                                                 type="button"
                                                                 onClick={() => eliminarMiembro(item.id)}
                                                             >
-                                                                Eliminar <Trash2 />
+                                                                <Trash2 /> Eliminar
                                                             </button>
-                                                        )}
-                                                    </>
-                                                )}  
+                                                        </div>
+                                                    )}  
 
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </fieldset>
                         </div>
@@ -398,7 +407,7 @@ const ProyectSection = ({ onSeleccion, datosActuales, onDatosChange }) => {
                                 Metodología utilizada:
                             </h2>
                             <select name="" id="" onChange={handleMetodologiaChange} defaultValue="">
-                                <option value="">-- Seleccione --</option>
+                                <option value="">--- Seleccione ---</option>
                                 {opciones.map(op => (
                                     <option key={op} value={op}>{op}
                                     </option>
