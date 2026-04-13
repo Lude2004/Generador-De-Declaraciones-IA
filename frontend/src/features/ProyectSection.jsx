@@ -9,7 +9,7 @@ import {
     TriangleAlert,
     User  
 } from 'lucide-react';
-import { getListaMetodologias } from "../services/api";
+import { getListaMetodologias } from "../services/Api";
 
 const ProyectSection = ({ datosActuales, onDatosChange }) => {
     const [equipo, setEquipo] = useState([])

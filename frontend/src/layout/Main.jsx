@@ -2,7 +2,7 @@ import "./Main.css";
 import ProyectSection from "../features/ProyectSection";
 import TaskSection from "../features/TaskSection";
 import DeclarationSection from "../features/DeclarationSection";
-import { getDetalleMetodologia } from "../services/api";
+import { getDetalleMetodologia } from "../services/Api";
 import { useState, useEffect } from "react";
 
 const Main = () => {
