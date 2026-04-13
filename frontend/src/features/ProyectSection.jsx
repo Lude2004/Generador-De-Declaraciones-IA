@@ -166,21 +166,22 @@ const ProyectSection = ({ datosActuales, onDatosChange }) => {
                             <h2>
                                 Nombre del Proyecto:
                             </h2>
-                            <div className="project-name-entry">
+                            <div className={`project-name-entry input-with-icon ${touched.nombreProyecto ? (isValid("nombreProyecto") ? 'valid' : 'invalid') : ''}`}>
                                 <input 
                                     type="text"
                                     name="nombreProyecto"
                                     value={datosActuales.nombreProyecto}
-                                    placeholder=""
+                                    placeholder="Ingrese el nombre del proyecto"
                                     onChange={handleChangeInput}
                                     onBlur={handleBlur}
+                                    className={touched.nombreProyecto ? (isValid("nombreProyecto") ? 'valid-field' : 'invalid-field') : ''}
                                 />
                                 {touched.nombreProyecto && (
-                                    isValid("nombreProyecto")
-                                        ? <span className="icon-check"><Check /></span>
-                                        : <span className="icon-alert"><TriangleAlert /></span>
+                                    isValid("nombreProyecto") 
+                                        ? <span className="input-icon valid"><Check /></span>
+                                        : <span className="input-icon invalid"><TriangleAlert /></span>
                                 )}
-                                {touched.nombreProyecto && datosActuales.nombreProyecto?.trim() === "" && (
+                                {touched.nombreProyecto && !isValid("nombreProyecto") && (
                                     <p className="error-message">
                                         Por favor ingrese el nombre del proyecto de software.
                                     </p>

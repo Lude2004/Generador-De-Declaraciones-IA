@@ -1,3 +1,68 @@
+/* ===== INPUT CON ICONOS DE VALIDACIÓN ===== */
+
+/* Contenedor padre del input con icono */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+/* Input con espacio para el icono */
+.input-with-icon input {
+    width: 100%;
+    padding-right: 45px; /* Espacio para el icono */
+    box-sizing: border-box;
+}
+
+/* Contenedor del icono (bien/mal) */
+.input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+/* Icono de validación correcta */
+.input-icon.valid {
+    color: #10b981; /* Verde */
+    background-color: #d1fae5;
+}
+
+/* Icono de validación incorrecta */
+.input-icon.invalid {
+    color: #ef4444; /* Rojo */
+    background-color: #fee2e2;
+}
+
+/* Input con validación correcta */
+.input-with-icon input.valid-field {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+
+/* Input con validación incorrecta */
+.input-with-icon input.invalid-field {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Mensaje de error debajo del input */
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    padding-left: 4px;
+}
+
+/* ===== STYLES EXISTENTES (mantener) ===== */
+
 .project-name,
 .project-leader,
 .team-data,
@@ -96,22 +161,61 @@
     color: var(--color-accent-secondary);
 }
 
+/* ===== ICONOS DE VALIDACIÓN (MEJORADOS) ===== */
+
+/* Contenedor padre del input con icono - versión simple */
+.project-name-entry,
+.project-leader-name-entry,
+.project-leader-last-name-entry,
+.member-name-entry,
+.member-last-name-entry,
+.member-rol-entry {
+    position: relative;
+    width: 100%;
+}
+
+/* Icono de validación correcta */
 .icon-check {
     position: absolute;
     right: 12px;
-    top: 60%;
+    top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: var(--color-accent-secondary);
+    color: #10b981; /* Verde success */
+    background-color: #d1fae5;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Icono de validación incorrecta */
 .icon-alert {
     position: absolute;
     right: 12px;
-    top: 28%;
+    top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: var(--color-accent-warning);
+    color: #ef4444; /* Rojo error */
+    background-color: #fee2e2;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Input con validación correcta - cambia el borde */
+input.valid-field {
+    border-color: #10b981 !important;
+    border-width: 2px;
+}
+
+/* Input con validación incorrecta - cambia el borde */
+input.invalid-field {
+    border-color: #ef4444 !important;
+    border-width: 2px;
 }
 
 /* ===== ERROR - MESSEAGE ===== */
