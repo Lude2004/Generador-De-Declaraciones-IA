@@ -6,7 +6,6 @@ services:
     container_name: postgres_db
     restart: always
     environment:
-      DB_HOST: postgres_db
       POSTGRES_DB: bd_AgileFrameworks
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 2004
