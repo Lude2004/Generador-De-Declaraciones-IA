@@ -128,13 +128,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:3000", #5173
 ]
 
 # 2. PERMITIR CSRF (Para que Django acepte el POST)
 # ¡OJO! Es vital poner 'http://' al principio.
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:3000",
 ]
 
 # Configuración para evitar warnings de codificación en Windows
