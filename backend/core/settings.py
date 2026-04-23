@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': 'bd_AgileFrameworks',
         'USER': 'postgres',
         'PASSWORD': '2004',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432'
     }
 }
