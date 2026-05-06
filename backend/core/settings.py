@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+dotenv_path = Path(__file__).resolve().parent.parent / '.env'
+load_dotenv(dotenv_path)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'core',
 ]
@@ -52,8 +58,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    # Middleware de Seguridad en Tránsito (0.2.2)
+    'core.security_middleware.EnforceHTTPSMiddleware',
+    'core.security_middleware.SecurityHeadersMiddleware',
+    'core.security_middleware.ValidateCertificateMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -91,8 +99,16 @@ DATABASES = {
 }
 
 
-# Password validation
+# Password validation & Hashing
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+
+# Configurar Argon2id como algoritmo de hashing para contraseñas (0.2.1 Cifrado en Reposo)
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,12 +145,103 @@ STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", #5173
+    "http://localhost:5173",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+APPEND_SLASH = False
+
+# JWT Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+}
 
 # 2. PERMITIR CSRF (Para que Django acepte el POST)
 # ¡OJO! Es vital poner 'http://' al principio.
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:5173",
+]
+
+# =============================================================================
+# 0.2.2 SEGURIDAD EN TRÁNSITO - TLS 1.3 & HTTPS
+# =============================================================================
+# Protocolo: TLS 1.3 con Perfect Forward Secrecy (ECDHE)
+
+# Redirigir HTTP a HTTPS (excepto en desarrollo)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+else:
+    SECURE_SSL_REDIRECT = False
+
+# Cookies solo por HTTPS
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+# HSTS: Fuerza HTTPS en futuros accesos (HTTP Strict Transport Security)
+# 31536000 segundos = 1 año
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True  # Incluir en HSTS preload list
+else:
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+# Headers de Seguridad Adicionales
+# Protección contra XSS (Cross-Site Scripting)
+SECURE_BROWSER_XSS_FILTER = True
+
+# Protección contra Clickjacking (Click-jacking attacks)
+X_FRAME_OPTIONS = 'DENY'
+
+# Content Security Policy - Restricción de recursos
+SECURE_CONTENT_SECURITY_POLICY = {
+    'default-src': ("'self'",),
+    'script-src': ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net"),
+    'style-src': ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net"),
+    'img-src': ("'self'", "data:", "https:"),
+    'font-src': ("'self'", "cdn.jsdelivr.net"),
+    'connect-src': ("'self'", "localhost:5173", "localhost:8000"),
+    'frame-ancestors': ("'none'",),
+}
+
+# Política de Referrer - No enviar referrer a sitios externos
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# MIME Type Sniffing Prevention
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Actualizar configuración de CORS para seguridad en tránsito
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
+
+# En producción, agregar dominios HTTPS reales
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 # Configuración para evitar warnings de codificación en Windows

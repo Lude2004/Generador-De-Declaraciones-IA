@@ -19,8 +19,16 @@ from django.contrib import admin
 from django.urls import path
 from django.http import JsonResponse
 from core import views
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
+    path('api/auth/register/', views.register, name='register'),
+    path('api/auth/login/', views.login_view, name='login'),
+    path('api/auth/me/', views.me, name='me'),
+    path('api/auth/logout/', views.logout_view, name='logout'),
+
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
     # URLs con Strategy Pattern REALMENTE FUNCIONAL
     path('api/metodologia/<str:nombre_metodo>', views.obtener_metodologia, name='detalle_metodologia'),
     path('api/lista-metodologias/', views.listar_nombres_metodologias, name='lista_metodologias'),
