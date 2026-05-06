@@ -8,15 +8,16 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4  
 
       - name: Install Gitleaks
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-          chmod +x gitleaks
+          wget https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64
+          chmod +x gitleaks-linux-amd64
+          sudo mv gitleaks-linux-amd64 /usr/local/bin/gitleaks
 
-      - name: Run Gitleaks (FULL SCAN)
-        run: |
-          ./gitleaks detect --source . --no-git --verbose --redact
+      - name: Verify installation
+        run: gitleaks version
+
+      - name: Run Gitleaks
+        run: gitleaks detect --source . --no-git --verbose
