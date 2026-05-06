@@ -10,14 +10,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Gitleaks
-        run: |
-          wget https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_$(uname -s)_$(uname -m).tar.gz
-          tar -xzf gitleaks_*.tar.gz
-          sudo mv gitleaks /usr/local/bin/
-
-      - name: Verify installation
-        run: gitleaks version
-
       - name: Run Gitleaks
-        run: gitleaks detect --source . --no-git --verbose
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --no-git --verbose
