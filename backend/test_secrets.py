@@ -42,10 +42,6 @@ AAAAQ123456789abcdefghijklmnopqrstuvwxyzAAAAAg
     "DB_PASSWORD": "Mysql@P@ssw0rd123!fake",
     "ADMIN_PASSWORD": "Admin#Secure$Pass@2024",
     
-    # Cloud Services
-    "GOOGLE_API_KEY": "AIzaSyABcDeFgHiJkLmNoPqRsTuVwXyZ1234567890",
-    "AZURE_STORAGE_CONNECTION": "DefaultEndpointsProtocol=https;AccountName=fakeaccount;AccountKey=1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV;EndpointSuffix=core.windows.net",
-    
     # OAuth Tokens
     "OAUTH_ACCESS_TOKEN": "ya29.a0AfH6SMBx_abc123XYZ_1234567890abcdefgh",
     "OAUTH_REFRESH_TOKEN": "1//0gxyz123ABC456789XYZ0_abcd1234567890",
