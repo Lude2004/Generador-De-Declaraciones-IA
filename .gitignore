@@ -62,3 +62,11 @@ Thumbs.db
 *.bak
 temp/
 tmp/
+
+# Documentation
+*.md
+
+# Demo and test files
+demo_encryption.py
+test_*.py
+test_postgresql.sql
