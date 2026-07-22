@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from __future__ import annotations
 
 from typing import Optional, List, TYPE_CHECKING
 from .component_metodologia import ComponentMetodologia
